@@ -4,6 +4,11 @@
 #include <stdbool.h>
 
 /**
+ * Mailbox Message buffer.
+ */
+extern volatile unsigned int mbox[36];
+
+/**
  * Initializes the Memory-Mapped IO (MMIO) driver.
  * If the specified boardType is not recognized, MMIO will not be initialized.
  *
@@ -30,7 +35,7 @@ unsigned int get_mmio_board_type();
  * @param offset The MMIO register offset to read from.
  * @return The value held in that register offset.
  */
-uint32_t mmio_read(uint32_t offset);
+uint32_t mmio_read(uint64_t offset);
 
 /**
  * Writes the specified unsigned 32-bit value into the specified MMIO
@@ -38,21 +43,25 @@ uint32_t mmio_read(uint32_t offset);
  * @param offset The MMIO register offset to write to.
  * @param data The value to write into the register.
  */
-void mmio_write(uint32_t offset, uint32_t value);
+void mmio_write(uint64_t offset, uint32_t value);
 
 
 
 /// MMIO register offsets.
 enum {
 
-    /// The offsets for each register.
+    // GPIO
+
+    /// The base address for GPIO registers.
     GPIO_BASE = 0x200000,
-
-    /// Controls pulling all GPIO pins up/down.
-    GPPUD = (GPIO_BASE + 0x94),
-
-    /// Controls pulling a specific GPIO pin up/down.
-    GPPUDCLK0 = (GPIO_BASE + 0x98),
+    GPFSEL0 = GPIO_BASE,
+    GPFSEL1 = (GPIO_BASE + 0x04),
+    GPFSEL2 = (GPIO_BASE + 0x08),
+    GPFSEL3 = (GPIO_BASE + 0x0C),
+    GPFSEL4 = (GPIO_BASE + 0x10),
+    GPFSEL5 = (GPIO_BASE + 0x14),
+    GPPUD = (GPIO_BASE + 0x94), // Controls pulling all GPIO pins up/down.
+    GPPUDCLK0 = (GPIO_BASE + 0x98), // Controls pulling a specific GPIO pin up/down.
 
 
     // UART

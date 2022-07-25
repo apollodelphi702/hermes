@@ -31,7 +31,7 @@ SECTIONS {
         /* Ensure .text.boot is not stripped out (and by ordering it first, ensure it is included first) */
         KEEP(*(.text.boot))
         /* Add remaining .text sections. */
-        *(.text)
+        *(.text .text.*)
     }
 
     . = ALIGN(4096); /* Ensure the end of the section is page-aligned. */
@@ -41,7 +41,7 @@ SECTIONS {
 
     /* .rodata - Read-Only data (not executable, but not writable either). */
     .rodata : {
-        *(.rodata)
+        *(.rodata .rodata.*)
     }
 
     . = ALIGN(4096); /* Ensure the end of the section is page-aligned. */
@@ -51,7 +51,7 @@ SECTIONS {
 
     /* .data - readable-writeable but not executable data. */
     .data : {
-        *(.data)
+        *(.data .data.*)
     }
 
     . = ALIGN(4096); /* Ensure the end of the section is page-aligned. */
@@ -63,7 +63,8 @@ SECTIONS {
     .bss : {
         /* Set the bss label to the current address and then include any uninitialized variables. */
         bss = .;
-        *(.bss)
+        *(.bss .bss.*)
+        *(COMMON)
     }
 
     . = ALIGN(4096); /* Ensure the end of the section is page-aligned. */

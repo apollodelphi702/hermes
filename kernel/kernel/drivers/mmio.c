@@ -11,6 +11,11 @@ static unsigned int MMIO_BOARD_TYPE;
  */
 static uint32_t MMIO_BASE = 0;
 
+/**
+ * Mailbox message buffer.
+ */
+volatile unsigned int __attribute__((aligned(16))) mbox[36];
+
 bool is_mmio_initialized() {
     return MMIO_BASE != 0;
 }
@@ -41,10 +46,10 @@ void mmio_init(unsigned int boardType) {
     }
 }
 
-uint32_t mmio_read(uint32_t offset) {
+uint32_t mmio_read(uint64_t offset) {
     return *(volatile uint32_t*)(MMIO_BASE + offset);
 }
 
-void mmio_write(uint32_t offset, uint32_t value) {
+void mmio_write(uint64_t offset, uint32_t value) {
     *(volatile uint32_t*) (MMIO_BASE + offset) = value;
 }

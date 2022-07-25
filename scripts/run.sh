@@ -18,4 +18,4 @@ ninja hermes
 cd "$cwd" || exit
 
 # Run the emulator script.
-./scripts/emulator.sh ./out/kernel.elf
+./scripts/emulator.sh ./out/kernel8.img

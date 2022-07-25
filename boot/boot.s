@@ -6,41 +6,6 @@
 // first.
 .section ".text.boot"
 
-// Reserved addresses for spinlocking CPUs.
-.org 0xd8
-.globl spin_cpu
-spin_cpu:
-    .quad 0 // CPU 0 @ 0xd8
-    .quad 0 // CPU 1 @ 0xe0
-    .quad 0 // CPU 2 @ 0xe8
-
-    // CPU 3 @ 0xf0
-    // This value is shared with the firmware, which initially reads two words
-    // containing the magic number and version, then clears them, allowing us
-    // to use this as CPU 3's spinlock address.
-    .word 0x5afe570b    // Firmware Magic Number
-    .word 0             // Firmware Version
-
-
-// Reserved address for 32-bit device tree blob pointer.
-.org 0xf8
-.globl device_tree_ptr
-device_tree_ptr:
-    .word 0x100
-
-// Reserved address for 32-bit kernel entry pointer.
-.org 0xfc
-.globl kernel_entry_ptr
-kernel_entry_ptr:
-    .word 0x80000
-
-// Label for the device tree.
-.org 0x100
-.globl device_tree
-
-// Move to memory address 0x80000.
-.org 0x80000
-
 // Entry point for kernel.
 // Execution is 'dropped' to us here by the Raspberry Pi firmware's
 // armstub8.s once the Raspberry Pi has initialized itself.
@@ -149,11 +114,9 @@ _start:
     mov x2, #0
     mov x3, #0
 
-    // Load the device tree pointer and kernel entry points into x0 and x4 respectively.
-    // Though the values themselves are 32-bit, they're loaded into 64-bit registers to clear the upper bits.
-    // (As the convention in the kernel_main, for example, is to use a uint64_t for the device tree pointer.)
-    ldr x0, device_tree_ptr
-    ldr x4, kernel_entry_ptr
+    // Load the device tree pointer and kernel entry points into the 32-bit registers w0 and w4 respectively.
+    ldr w0, device_tree_ptr
+    ldr w4, kernel_entry_ptr
 
     // Branch to kernel_main.
     // We should never return from kernel_main.
@@ -163,7 +126,6 @@ _start:
     b kernel_main
 
 // Jumping to this address allows for halting the system.
-.align 16
 .globl halt
 halt:
     // Enter power-efficient spinlock using wfe.
@@ -171,3 +133,39 @@ halt:
     // the spinlock.
     wfe
     b halt
+
+// Assemble the previous literal pool and allow us to define data.
+.ltorg
+
+
+// Reserved addresses for spinlocking CPUs.
+.org 0xd8
+.globl spin_cpu
+spin_cpu:
+    .quad 0 // CPU 0 @ 0xd8
+    .quad 0 // CPU 1 @ 0xe0
+    .quad 0 // CPU 2 @ 0xe8
+
+    // CPU 3 @ 0xf0
+    // This value is shared with the firmware, which initially reads two words
+    // containing the magic number and version, then clears them, allowing us
+    // to use this as CPU 3's spinlock address.
+    .word 0x5afe570b    // Firmware Magic Number
+    .word 0             // Firmware Version
+
+
+// Reserved address for 32-bit device tree blob pointer.
+.org 0xf8
+.globl device_tree_ptr
+device_tree_ptr:
+    .word 0x100
+
+// Reserved address for 32-bit kernel entry pointer.
+.org 0xfc
+.globl kernel_entry_ptr
+kernel_entry_ptr:
+    .word 0x80000
+
+// Label for the device tree.
+.org 0x100
+.globl device_tree

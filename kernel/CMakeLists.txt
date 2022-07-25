@@ -9,7 +9,7 @@ file(GLOB_RECURSE HERMES_KERNEL_SOURCES *.c)
 #   (There is also -Os to optimize for size.)
 #   It's usually worth some experimentation with these.
 # -Wall -Wextra -Wpedantic; enable all compiler warnings (plus additional extra ones).
-set(CMAKE_C_FLAGS "-ffreestanding -O2 -Wall -Wextra -Wpedantic")
+set(CMAKE_C_FLAGS "-ffreestanding -O2 -Wall -Wextra -Wpedantic -nostdlib -nostartfiles")
 set(CMAKE_C_LINK_FLAGS "-ffreestanding -O2 -nostdlib -lgcc -T kernel/linker.ld")
 set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_LINK_EXECUTABLE_NAME} <CMAKE_C_LINK_FLAGS> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
 configure_file(linker.ld linker.ld COPYONLY)
@@ -34,10 +34,10 @@ set_property(
 add_custom_command(TARGET kernel.elf POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy kernel.elf ${HERMES_OUTPUT_DIRECTORY}/kernel.elf)
 
-## Pack kernel executable into kernel8.img file.
-#add_custom_command(TARGET kernel.elf POST_BUILD
-#        COMMAND aarch64-elf-objcopy kernel.elf -O binary kernel8.img)
-#
-## Copy kernel8.img to output directory.
-#add_custom_command(TARGET kernel.elf POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy kernel8.img ${HERMES_OUTPUT_DIRECTORY}/kernel8.img)
+# Pack kernel executable into kernel8.img file.
+add_custom_command(TARGET kernel.elf POST_BUILD
+        COMMAND aarch64-elf-objcopy kernel.elf -O binary kernel8.img)
+
+# Copy kernel8.img to output directory.
+add_custom_command(TARGET kernel.elf POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy kernel8.img ${HERMES_OUTPUT_DIRECTORY}/kernel8.img)
