@@ -6,6 +6,7 @@ out/**
 **/*.o
 **/*.elf
 
+.hermes
 **/hermes.bin
 **/hermes.raw
 **/notes.txt

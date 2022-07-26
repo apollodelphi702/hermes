@@ -8,5 +8,5 @@ toolchain. You can see the project wiki for more information about this.
 Once you've done that, you can get a copy of the system built and running in QEMU by running
 the following in the project root directory:
 ```bash
-$ ./scripts/run.sh
+$ ./hermes run
 ```

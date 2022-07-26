@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Hermes CLI
+# This can be used to easily invoke scripts from ./scripts.
+
+# ---
+# Useful Functions
+
+repeat(){
+	local start=1
+	local end=${1:-80}
+	local str="${2:-=}"
+	local range=$(seq $start $end)
+	for i in $range ; do echo -n "${str}"; done
+}
+
+# ---
+# Script start
+
+# Save the user's current working directory.
+cwd=$(pwd)
+
+# Check the script's containing directory (i.e., the project root).
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+# Switch to the script's containing directory (in case we're not in it).
+cd "$SCRIPT_DIR" || exit 1
+
+if [ -f "$SCRIPT_DIR/.hermes" ]; then
+  . "$SCRIPT_DIR/.hermes"
+fi
+
+COMMAND=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+case "$COMMAND" in
+
+  build)
+    ./scripts/run.sh --skip-emulator
+    ;;
+
+  run)
+    ./scripts/run.sh
+    ;;
+
+  emulator)
+    ./scripts/emulator.sh
+    ;;
+
+  clean)
+    ./scripts/clean.sh
+    ;;
+
+  *)
+    echo ""
+    echo "  /\  /\___ _ __ _ __ ___   ___  ___ ";
+    echo " / /_/ / _ \ '__| '_ \` _ \ / _ \/ __|";
+    echo "/ __  /  __/ |  | | | | | |  __/\__ \\";
+    echo "\/ /_/ \___|_|  |_| |_| |_|\___||___/";
+    echo -e "\tBuild System CLI v1.0"
+    echo ""
+
+    if [ -n "$COMMAND" ] && [ ! "$COMMAND" == "help" ]; then
+      echo "Command not found: $COMMAND"
+      echo ""
+    fi
+
+    printf "\tCommand%s\t\tDescription\n" "$(repeat $((${#0} / 8)) "$(printf '\t')")"
+    printf "\t-------%s\t\t-----------\n" "$(repeat $((${#0} / 8)) "$(printf '\t')")"
+    printf "\t%s build\t\tBuilds hermes.\n" "$0"
+    printf "\t%s run\t\tBuilds hermes and starts the emulator afterwards.\n" "$0"
+    printf "\t%s emulator\tStarts the emulator with the default configuration.\n" "$0"
+    printf "\t%s clean\t\tCleans all output from previous builds.\n" "$0"
+    ;;
+
+esac
+
+# Restore the user's current working directory.
+cd "$cwd" || exit

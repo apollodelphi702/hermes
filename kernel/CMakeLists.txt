@@ -32,12 +32,18 @@ set_property(
 
 # Copy kernel image to output directory.
 add_custom_command(TARGET kernel.elf POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy kernel.elf ${HERMES_OUTPUT_DIRECTORY}/kernel.elf)
+        COMMAND ${CMAKE_COMMAND} -E copy kernel.elf ${HERMES_OUTPUT_DIRECTORY}/kernel.elf
+        COMMENT "Copying kernel executable to output directory"
+        BYPRODUCTS ${HERMES_OUTPUT_DIRECTORY}/kernel.elf)
 
-# Pack kernel executable into kernel8.img file.
+# Extract sections of kernel.elf to produce binary kernel8.img file.
 add_custom_command(TARGET kernel.elf POST_BUILD
-        COMMAND aarch64-elf-objcopy kernel.elf -O binary kernel8.img)
+        COMMAND ${OBJCOPY} kernel.elf -O binary kernel8.img
+        COMMENT "Building kernel image file"
+        BYPRODUCTS kernel8.img)
 
 # Copy kernel8.img to output directory.
 add_custom_command(TARGET kernel.elf POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy kernel8.img ${HERMES_OUTPUT_DIRECTORY}/kernel8.img)
+        COMMAND ${CMAKE_COMMAND} -E copy kernel8.img ${HERMES_OUTPUT_DIRECTORY}/kernel8.img
+        COMMENT "Copying kernel image to output directory"
+        BYPRODUCTS ${HERMES_OUTPUT_DIRECTORY}/kernel8.img)
