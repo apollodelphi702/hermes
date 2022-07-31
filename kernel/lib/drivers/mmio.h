@@ -53,13 +53,17 @@ enum {
     // Mailbox
 
     /// The base address for Mailbox MMIO registers.
-    MBOX_BASE = 0xB880,
+    MBOX_BASE    = 0xB880,
     /// Mailbox Read Register
     MBOX_READ    = (MBOX_BASE + 0x00),
-    /// Mailbox Config Register
-    MBOX_CONFIG  = (MBOX_BASE + 0x1C),
+    /// Mailbox Poll Register
+    MBOX_POLL    = (MBOX_BASE + 0x10),
+    /// Mailbox Sender Register
+    MBOX_SENDER  = (MBOX_BASE + 0x14),
     /// Mailbox Status Register
     MBOX_STATUS  = (MBOX_BASE + 0x18),
+    /// Mailbox Config Register
+    MBOX_CONFIG  = (MBOX_BASE + 0x1C),
     /// Mailbox Write Register
     MBOX_WRITE   = (MBOX_BASE + 0x20),
 
