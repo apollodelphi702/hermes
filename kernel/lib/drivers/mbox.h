@@ -28,10 +28,10 @@
 // TODO: use typedef struct for mailbox messages?
 
 /**
- * Macro to create a mailbox message of the required type and define the parameters inline.
+ * Macro to define a mailbox message of the required type and define the parameters inline.
  * @param name The object name the message should be created with.
  */
-#define CreateMailboxMessage(name, ...) volatile uint32_t __attribute__((aligned(16))) (mbox_msg_ ## name)[36] = {__VA_ARGS__}
+#define DefineMailboxMessage(name, ...) volatile uint32_t __attribute__((aligned(16))) (mbox_msg_ ## name)[36] = {__VA_ARGS__}
 
 /**
  * Readability alias to wait while the mailbox status matches the specified status (i.e., wait until that status is no
@@ -46,7 +46,7 @@
 
 /**
  * Send the specified message pointer to the specified mailbox channel when the mailbox becomes available.
- * You can use the CreateMailboxMessage macro to make a buffer and pre-populate it with a specific message payload.
+ * You can use the DefineMailboxMessage macro to make a buffer and pre-populate it with a specific message payload.
  *
  * If the message pointer is not 16-byte aligned, this function does nothing.
  *
@@ -100,8 +100,20 @@ typedef enum {
     MBOX_TAG_GET_CLOCKS             = 0x10007,
 
     /* Clocks */
+    MBOX_TAG_GET_CLOCK_STATE        = 0x30001,
+    MBOX_TAG_SET_CLOCK_STATE        = 0x38001,
     MBOX_TAG_GET_CLOCK_RATE         = 0x30002,
     MBOX_TAG_SET_CLOCK_RATE         = 0x38002,
+    MBOX_TAG_GET_MAX_CLOCK_RATE     = 0x30004,
+    MBOX_TAG_GET_MIN_CLOCK_RATE     = 0x30007,
+    MBOX_TAG_GET_TURBO              = 0x30009,
+    MBOX_TAG_SET_TURBO              = 0x38009,
+
+    /* Voltage */
+    MBOX_TAG_GET_VOLTAGE            = 0x30003,
+    MBOX_TAG_SET_VOLTAGE            = 0x38003,
+    MBOX_TAG_GET_TEMPERATURE        = 0x30006,
+    MBOX_TAG_GET_MAX_TEMPERATURE    = 0x3000A,
 
     /* Framebuffer */
     MBOX_TAG_ALLOCATE_BUFFER        = 0x40001,

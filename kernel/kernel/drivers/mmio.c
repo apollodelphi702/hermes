@@ -24,16 +24,17 @@ void mmio_init() {
     if (is_mmio_initialized()) return;
 
     // Look up the board (by reading MIDR_ELx system register)
-    uint32_t midr_el1;
-    __asm__ volatile("mrs %x0, midr_el1" : "=r" (midr_el1));
-
-    // The model is encoded in the PartNum value (bits [15:4]).
-    // Interpret the PartNum value to retrieve the board number.
-    int boardType = 0;
-    switch ((midr_el1 >> 4) & 0xFFF) {
-        case 0xD03: boardType = 3; break;
-        case 0xD08: boardType = 4; break;
-    }
+//    uint32_t midr_el1;
+//    __asm__ volatile("mrs %x0, midr_el1" : "=r" (midr_el1));
+//
+//    // The model is encoded in the PartNum value (bits [15:4]).
+//    // Interpret the PartNum value to retrieve the board number.
+//    int boardType = 0;
+//    switch ((midr_el1 >> 4) & 0xFFF) {
+//        case 0xD03: boardType = 3; break;
+//        case 0xD08: boardType = 4; break;
+//    }
+    int boardType = 3;
 
     // Save the board type for later use.
     MMIO_BOARD_TYPE = boardType;

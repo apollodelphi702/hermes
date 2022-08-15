@@ -1,4 +1,5 @@
 #include <hermes/utilities.h>
+#include <hermes/string.h>
 #include <stdbool.h>
 
 const char* uitoa(char* buffer, uint64_t value, uint8_t base, int bufferMax) {

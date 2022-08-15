@@ -5,3 +5,4 @@
 #include <hermes/memory.h>
 #include <hermes/string.h>
 #include <hermes/utilities.h>
+#include <hermes/system.h>

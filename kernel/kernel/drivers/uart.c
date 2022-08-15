@@ -6,6 +6,28 @@
 #include <debug.h>
 #include "drivers/mbox.h"
 
+DefineMailboxMessage(
+    set_clock_rate_4mhz,
+    // Size (in bytes) of message = 9 * 32-bit integer = 36.
+    9 * sizeof(uint32_t),
+    // Request/Response code. Always 0 for requests.
+    MBOX_REQUEST,
+    // Tag Identity (Command)
+    MBOX_TAG_SET_CLOCK_RATE,
+    // Value Buffer Length (bytes)
+    3 * sizeof(uint32_t),
+    // Request Response Size
+    2 * sizeof(uint32_t),
+    // [0]: Clock ID
+    MBOX_TAG_CLOCK_UART,
+    // [1]: Frequency (in Hz)
+    4000000,
+    // [2]: Skip turbo setting?
+    0,
+    // Ending Tag
+    MBOX_TAG_END,
+);
+
 void uart_init() {
 
     // Disable UART0.
@@ -17,29 +39,12 @@ void uart_init() {
     // rate.
     if (get_mmio_board_type() >= 3) {
         // A Mailbox message with set clock rate to 4MHz.
-        CreateMailboxMessage(
-            set_clock_rate_4mhz,
-            // Size (in bytes) of message = 8 * 32-bit integer.
-            8 * sizeof(uint32_t),
-            // Request/Response code. Always 0 for requests.
-            MBOX_REQUEST,
-            // Tag Identity (Command)
-            MBOX_TAG_SET_CLOCK_RATE,
-            // Value Buffer Length (bytes)
-            3 * sizeof(uint32_t),
-            // Request Response Size
-            0,
-            // [0]: Clock ID
-            MBOX_TAG_CLOCK_UART,
-            // [1]: Frequency (in Hz)
-            4000000,
-            // [2]: Skip turbo setting?
-            0,
-            // Ending Tag
-            MBOX_TAG_END,
-        );
-
-        mbox_call(MBOX_CHANNEL_ARM_TO_VC, mbox_msg_set_clock_rate_4mhz);
+//        mbox_call(MBOX_CHANNEL_ARM_TO_VC, &mbox_msg_set_clock_rate_4mhz);
+        unsigned int r = (((unsigned int)((unsigned long) mbox_msg_set_clock_rate_4mhz) & ~0xF) | 8);
+        while (mmio_read(MBOX_STATUS) & 0x80000000);
+        // Send message to property channel and wait for response.
+        mmio_write(MBOX_WRITE, r);
+        while ( (mmio_read(MBOX_STATUS) & 0x40000000) || mmio_read(MBOX_READ) != r );
     }
 
     // Map UART0 to the GPIO pins. (It's normally mapped to the bluetooth adapter).
@@ -94,4 +99,11 @@ void uart_puts(const char* str) {
     for (size_t i = 0; str[i] != '\0'; i++) {
         uart_putc((unsigned char) str[i]);
     }
+}
+
+void uart_clear() {
+    uart_putc(0x1B);
+    uart_putc(0x5B);
+    uart_putc(0x32);
+    uart_putc(0x4A);
 }

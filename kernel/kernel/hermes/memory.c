@@ -16,22 +16,24 @@ void memswap(char* a, char* b) {
 
 void memzero(void* base, size_t size) {
 
-    if (base == NULL || size == 0) return;
+    memset(base, '\0', size);
 
-    size_t* baseSz = (size_t*) base;
-
-    size_t clearSize = size / sizeof(size_t);
-    size_t* ptr = baseSz;
-
-    // Clear up to the register-sized max
-    for (; ptr < baseSz + clearSize; ptr++) {
-        *ptr = 0;
-    }
-
-    // Clear the remainder using byte operations.
-    uint8_t* bytePtr = ((uint8_t*) ptr) + 1;
-    for (; bytePtr < (uint8_t*)(baseSz) + size; bytePtr++) {
-        *bytePtr = 0;
-    }
+//    if (base == NULL || size == 0) return;
+//
+//    size_t* baseSz = (size_t*) base;
+//
+//    size_t clearSize = size / sizeof(size_t);
+//    size_t* ptr = baseSz;
+//
+//    // Clear up to the register-sized max
+//    for (; ptr < baseSz + clearSize; ptr++) {
+//        *ptr = 0;
+//    }
+//
+//    // Clear the remainder using byte operations.
+//    uint8_t* bytePtr = ((uint8_t*) ptr) + 1;
+//    for (; bytePtr < (uint8_t*)(baseSz) + size; bytePtr++) {
+//        *bytePtr = 0;
+//    }
 
 }

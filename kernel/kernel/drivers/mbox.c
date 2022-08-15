@@ -1,4 +1,5 @@
 #include <drivers/mbox.h>
+#include "drivers/uart.h"
 
 #define ptr_to_uint32(x) ((uint32_t) (uint64_t) x)
 
