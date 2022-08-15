@@ -39,12 +39,7 @@ void uart_init() {
     // rate.
     if (get_mmio_board_type() >= 3) {
         // A Mailbox message with set clock rate to 4MHz.
-//        mbox_call(MBOX_CHANNEL_ARM_TO_VC, &mbox_msg_set_clock_rate_4mhz);
-        unsigned int r = (((unsigned int)((unsigned long) mbox_msg_set_clock_rate_4mhz) & ~0xF) | 8);
-        while (mmio_read(MBOX_STATUS) & 0x80000000);
-        // Send message to property channel and wait for response.
-        mmio_write(MBOX_WRITE, r);
-        while ( (mmio_read(MBOX_STATUS) & 0x40000000) || mmio_read(MBOX_READ) != r );
+        mbox_call(MBOX_CHANNEL_ARM_TO_VC, mbox_msg_set_clock_rate_4mhz);
     }
 
     // Map UART0 to the GPIO pins. (It's normally mapped to the bluetooth adapter).
