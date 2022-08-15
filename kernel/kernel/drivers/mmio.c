@@ -19,24 +19,36 @@ unsigned int get_mmio_board_type() {
     return MMIO_BOARD_TYPE;
 }
 
-void mmio_init(unsigned int boardType) {
+void mmio_init() {
     // Ensure MMIO hasn't already been initialized.
     if (is_mmio_initialized()) return;
+
+    // Look up the board (by reading MIDR_ELx system register)
+    uint32_t midr_el1;
+    __asm__ volatile("mrs %x0, midr_el1" : "=r" (midr_el1));
+
+    // The model is encoded in the PartNum value (bits [15:4]).
+    // Interpret the PartNum value to retrieve the board number.
+    int boardType = 0;
+    switch ((midr_el1 >> 4) & 0xFFF) {
+        case 0xD03: boardType = 3; break;
+        case 0xD08: boardType = 4; break;
+    }
 
     // Save the board type for later use.
     MMIO_BOARD_TYPE = boardType;
 
     // Set the MMIO base address depending on the board type/version.
     switch (boardType) {
-        case 2:
+        case 2:         /* Unsupported */ break;
         case 3:
             MMIO_BASE = 0x3F000000;
             break;
         case 4:
             MMIO_BASE = 0xFE000000;
             break;
-        default:
-            MMIO_BASE = 0x20000000;
+        default:        /* Unsupported */
+//            MMIO_BASE = 0x20000000;
             break;
     }
 }

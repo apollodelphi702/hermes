@@ -14,3 +14,4 @@
 - https://wiki.osdev.org/Raspberry_Pi_Bare_Bones - Kernel bare bones
 - https://github.com/bztsrc/raspi3-tutorial/tree/master/05_uart0 - getting UART functional (MMIO registers)
 - https://www.valvers.com/open-software/raspberry-pi/bare-metal-programming-in-c-part-5/
+- https://wiki.osdev.org/Detecting_Raspberry_Pi_Board

@@ -11,8 +11,8 @@ void kernel_main(__attribute__((unused)) uint64_t deviceTree,
                            __attribute__((unused)) uint64_t x2,
                            __attribute__((unused)) uint64_t x3) {
 
-    /* Initialize MMIO for Raspberry Pi 3 */
-    mmio_init(3);
+    /* Initialize MMIO */
+    mmio_init();
 
     /* Initialize UART */
     uart_init();

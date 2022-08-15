@@ -5,11 +5,8 @@
 
 /**
  * Initializes the Memory-Mapped IO (MMIO) driver.
- * If the specified boardType is not recognized, MMIO will not be initialized.
- *
- * @param boardType The numerical board type. (e.g., 2 for Raspberry Pi 2, etc.,)
  */
-void mmio_init(unsigned int boardType);
+void mmio_init();
 
 /**
  * Trivial alias to determine whether the MMIO driver has been initialized.

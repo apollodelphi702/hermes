@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "mmio.h"
+#include <drivers/mmio.h>
 
 /// Flag that denotes a mailbox request.
 #define MBOX_REQUEST    0x0

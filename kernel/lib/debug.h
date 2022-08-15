@@ -7,7 +7,7 @@
  * This has the effect of waiting a CPU cycle.
  */
 static inline void nop() {
-    asm volatile("nop");
+    __asm__ volatile("nop");
 }
 
 /**
@@ -16,6 +16,6 @@ static inline void nop() {
  * @param count The number of times to loop.
  */
 static inline void delay(int32_t count) {
-    asm volatile("__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n"
+    __asm__ volatile("__delay_%=: subs %[count], %[count], #1; bne __delay_%=\n"
             : "=r"(count): [count]"0"(count) : "cc");
 }
