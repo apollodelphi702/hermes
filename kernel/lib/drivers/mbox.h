@@ -87,7 +87,7 @@ typedef enum {
     /// Tag for end of message.
     MBOX_TAG_END                    = 0x0,
 
-    /* Videocore */
+    /* Video-core */
     MBOX_TAG_GET_FIRMWARE_VERSION   = 0x1,
 
     /* Hardware */
