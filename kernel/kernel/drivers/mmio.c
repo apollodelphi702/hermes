@@ -11,11 +11,6 @@ static unsigned int MMIO_BOARD_TYPE;
  */
 static uint32_t MMIO_BASE = 0;
 
-/**
- * Mailbox message buffer.
- */
-//volatile unsigned int __attribute__((aligned(16))) mbox[36];
-
 bool is_mmio_initialized() {
     return MMIO_BASE != 0;
 }

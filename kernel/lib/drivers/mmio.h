@@ -4,11 +4,6 @@
 #include <stdbool.h>
 
 /**
- * Mailbox Message buffer.
- */
-//extern volatile unsigned int mbox[36];
-
-/**
  * Initializes the Memory-Mapped IO (MMIO) driver.
  * If the specified boardType is not recognized, MMIO will not be initialized.
  *
