@@ -7,8 +7,9 @@ typedef char command_t[10][101];
 /**
  * Parse and execute the specified command.
  * @param command The command to parse and execute.
+ * @param argc The number of arguments to parse. (This does not include the command itself).
  */
-void exec_command(command_t command);
+void exec_command(command_t command, int argc);
 
 /**
  * Starts the system's UART console.
