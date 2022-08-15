@@ -1,8 +1,5 @@
 #include <drivers/mbox.h>
 
-#define MBOX_DATA       0xFFFFFFF0
-#define MBOX_CHANNEL    0xF
-
 #define ptr_to_uint32(x) ((uint32_t) (uint64_t) x)
 
 void mbox_write(uint8_t channel, const volatile uint32_t* message) {
@@ -64,5 +61,6 @@ bool mbox_call(uint8_t channel, volatile uint32_t* message) {
     // Wait for a response to the channel to the initial message.
     mbox_read(channel, message);
 
-    // Check that the
+    // Return whether the call was successful.
+    return message[1] == MBOX_RESPONSE;
 }

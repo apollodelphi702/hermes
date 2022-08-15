@@ -10,7 +10,7 @@ file(GLOB_RECURSE HERMES_KERNEL_SOURCES *.c)
 #   It's usually worth some experimentation with these.
 # -Wall -Wextra -Wpedantic; enable all compiler warnings (plus additional extra ones).
 set(CMAKE_C_FLAGS "-ffreestanding -O2 -Wall -Wextra -Wpedantic -nostdlib -nostartfiles")
-set(CMAKE_C_LINK_FLAGS "-ffreestanding -O2 -nostdlib -lgcc -T kernel/linker.ld")
+set(CMAKE_C_LINK_FLAGS "-ffreestanding -O2 -nostdlib -nostartfiles -lgcc -T kernel/linker.ld")
 set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_LINK_EXECUTABLE_NAME} <CMAKE_C_LINK_FLAGS> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
 configure_file(linker.ld linker.ld COPYONLY)
 

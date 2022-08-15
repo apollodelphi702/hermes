@@ -4,6 +4,7 @@ project(hermes)
 enable_language(ASM)
 
 set(CMAKE_C_STANDARD 23)
+set(CMAKE_GENERATOR Ninja)
 
 # Set build system locations.
 get_filename_component(HERMES_SCRIPTS_DIRECTORY     "./scripts" ABSOLUTE)

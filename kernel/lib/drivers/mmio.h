@@ -6,7 +6,7 @@
 /**
  * Mailbox Message buffer.
  */
-extern volatile unsigned int mbox[36];
+//extern volatile unsigned int mbox[36];
 
 /**
  * Initializes the Memory-Mapped IO (MMIO) driver.
@@ -48,7 +48,7 @@ void mmio_write(uint64_t offset, uint32_t value);
 
 
 /// MMIO register offsets.
-enum {
+typedef enum {
 
     // Mailbox
 
@@ -131,4 +131,4 @@ enum {
     /// UART DMA Control Register
     UART0_DMACR  = (UART0_BASE + 0x48),
 
-};
+} mmio_register_offset_t;

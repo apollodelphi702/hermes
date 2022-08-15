@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include <debug.h>
+#include "drivers/mbox.h"
 
 void uart_init() {
 
@@ -16,22 +17,29 @@ void uart_init() {
     // rate.
     if (get_mmio_board_type() >= 3) {
         // A Mailbox message with set clock rate to 4MHz.
-        mbox[0] = 9 * 4;
-        mbox[1] = 0;
-        mbox[2] = 0x38002;
-        mbox[3] = 12;
-        mbox[4] = 8;
-        mbox[5] = 2;
-        mbox[6] = 4000000;
-        mbox[7] = 0;
-        mbox[8] = 0;
+        CreateMailboxMessage(
+            set_clock_rate_4mhz,
+            // Size (in bytes) of message = 8 * 32-bit integer.
+            8 * sizeof(uint32_t),
+            // Request/Response code. Always 0 for requests.
+            MBOX_REQUEST,
+            // Tag Identity (Command)
+            MBOX_TAG_SET_CLOCK_RATE,
+            // Value Buffer Length (bytes)
+            3 * sizeof(uint32_t),
+            // Request Response Size
+            0,
+            // [0]: Clock ID
+            MBOX_TAG_CLOCK_UART,
+            // [1]: Frequency (in Hz)
+            4000000,
+            // [2]: Skip turbo setting?
+            0,
+            // Ending Tag
+            MBOX_TAG_END,
+        );
 
-        // UART_CLOCK = 3,000,000.
-        unsigned int r = (((unsigned int)((unsigned long) &mbox) & ~0xF) | 8);
-        while (mmio_read(MBOX_STATUS) & 0x80000000);
-        // Send message to property channel and wait for response.
-        mmio_write(MBOX_WRITE, r);
-        while ( (mmio_read(MBOX_STATUS) & 0x40000000) || mmio_read(MBOX_READ) != r );
+        mbox_call(MBOX_CHANNEL_ARM_TO_VC, mbox_msg_set_clock_rate_4mhz);
     }
 
     // Map UART0 to the GPIO pins. (It's normally mapped to the bluetooth adapter).
