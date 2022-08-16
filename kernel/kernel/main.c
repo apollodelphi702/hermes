@@ -30,12 +30,12 @@ void kernel_main(__attribute__((unused)) uint64_t deviceTree,
 
     memzero(buffer, 64);
     uart_puts("System Current Clock Speed: ");
-    uart_puts(uitoa(buffer, get_current_clock_speed() / 1000000, 10, 64));
+    uart_puts(uitoa(buffer, get_current_clock_speed(MBOX_TAG_CLOCK_ARM) / 1000000, 10, 64));
     uart_puts(" Mhz\r\n");
 
     memzero(buffer, 64);
     uart_puts("System Max Clock Speed: ");
-    uart_puts(uitoa(buffer, get_max_clock_speed() / 1000000, 10, 64));
+    uart_puts(uitoa(buffer, get_max_clock_speed(MBOX_TAG_CLOCK_ARM) / 1000000, 10, 64));
     uart_puts(" Mhz\r\n");
 
     // Finally, start UART console.

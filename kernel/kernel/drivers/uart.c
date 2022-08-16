@@ -6,28 +6,6 @@
 #include <debug.h>
 #include "drivers/mbox.h"
 
-DefineMailboxMessage(
-    set_clock_rate_4mhz_old,
-    // Size (in bytes) of message = 9 * 32-bit integer = 36.
-    9 * sizeof(uint32_t),
-    // Request/Response code. Always 0 for requests.
-    MBOX_REQUEST,
-    // Tag Identity (Command)
-    MBOX_TAG_SET_CLOCK_RATE,
-    // Value Buffer Length (bytes)
-    3 * sizeof(uint32_t),
-    // Request Response Size
-    2 * sizeof(uint32_t),
-    // [0]: Clock ID
-    MBOX_TAG_CLOCK_UART,
-    // [1]: Frequency (in Hz)
-    4000000,
-    // [2]: Skip turbo setting?
-    0,
-    // Ending Tag
-    MBOX_TAG_END,
-);
-
 DefineMailboxRequest(
     set_clock_rate_4mhz,
     MBOX_TAG_SET_CLOCK_RATE, 3 * sizeof(uint32_t), 2 * sizeof(uint32_t), MBOX_TAG_CLOCK_UART, 4000000, 0

@@ -199,6 +199,22 @@ bool mbox_call(uint8_t channel, volatile uint32_t* message);
  */
 bool mbox_get_tag_value(volatile uint32_t* message, mbox_tag_t tag, mbox_tag_value_t* value);
 
+/**
+ * Sets the specified tag value in the specified mailbox message.
+ * The message must have the required number of bytes defined in it to hold the value
+ * being set, otherwise the function will fail.
+ *
+ * @param message The message to write the tag value into.
+ * @param value The value (which contains the tag for which it belongs) to write into the message.
+ * @param offset The offset (from the first value) to start writing the value data buffer at.
+ * @return True if successful, otherwise false.
+ */
+bool mbox_set_tag_value(volatile uint32_t* message, mbox_tag_value_t* value, uint32_t offset);
+
 uint8_t mbox_get_tag_value_u8(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset);
 
+bool mbox_set_tag_value_u8(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset, uint8_t value);
+
 uint32_t mbox_get_tag_value_u32(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset);
+
+bool mbox_set_tag_value_u32(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset, uint32_t value);
