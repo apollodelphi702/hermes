@@ -52,6 +52,44 @@ const volatile uint32_t* mbox_read(uint8_t channel, const volatile uint32_t* fil
     return (volatile uint32_t *) (uint64_t) message_data;
 }
 
+bool mbox_init(volatile uint32_t* message) {
+    // Ensure the message is 16-byte aligned. Otherwise, return early with an error.
+    // We do this manually here as mbox_write currently just exits silently.
+    if ((ptr_to_uint32(message) & MBOX_DATA) != ptr_to_uint32(message)) return false;
+
+    // If the message size is less than 2, return an error.
+    // The message size must be correctly set to indicate that an adequate buffer has been allocated
+    // at build time.
+    if (message[0] < 2) return false;
+
+    // Set the message mode to request.
+    message[1] = MBOX_REQUEST;
+
+    uint32_t index = 2;
+    while (index < message[0]) { // Loop until the message is processed entirely.
+
+        // If the current tag is TAG_END, stop processing.
+        if (message[index] == MBOX_TAG_END) break;
+
+        // Skip tag name, size and request type.
+        uint32_t tag_size = message[index + 2] & 0x3fffffff;
+        index += 2;
+        message[index++] = MBOX_TAG_STATE_REQUEST;
+
+        // Check that the tag size is valid.
+        // (Return invalid if the tag size exceeds the message size).
+        if (tag_size > (message[0] - index)) return false;
+
+        // Zero out the tag values (they can be set after initialization).
+        memzero((void*) &message[index], tag_size);
+        index += tag_size;
+
+    }
+
+    // Indicate success.
+    return true;
+}
+
 bool mbox_call(uint8_t channel, volatile uint32_t* message) {
     // Ensure the message is 16-byte aligned. Otherwise, return early with an error.
     // We do this manually here as mbox_write currently just exits silently.
@@ -100,7 +138,7 @@ bool mbox_get_tag_value(volatile uint32_t* message, mbox_tag_t tag, mbox_tag_val
     return false;
 }
 
-bool mbox_set_tag_value(volatile uint32_t* message, mbox_tag_value_t* value, uint32_t offset) {
+bool mbox_set_tag_value(volatile uint32_t* message, uint32_t offset, mbox_tag_value_t* value) {
     // Ensure the message is 16-byte aligned. Otherwise, return early with an error.
     // We do this manually here as mbox_write currently just exits silently.
     if ((ptr_to_uint32(message) & MBOX_DATA) != ptr_to_uint32(message)) return false;
@@ -143,7 +181,7 @@ uint8_t mbox_get_tag_value_u8(volatile uint32_t* message, mbox_tag_t tag, uint32
 
 bool mbox_set_tag_value_u8(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset, uint8_t value) {
     mbox_tag_value_t tagValue = { .byte_length = sizeof(uint32_t), .tag = tag, .data.value_u8 = value };
-    return mbox_set_tag_value(message, &tagValue, offset);
+    return mbox_set_tag_value(message, offset, &tagValue);
 }
 
 uint32_t mbox_get_tag_value_u32(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset) {
@@ -154,5 +192,5 @@ uint32_t mbox_get_tag_value_u32(volatile uint32_t* message, mbox_tag_t tag, uint
 
 bool mbox_set_tag_value_u32(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset, uint32_t value) {
     mbox_tag_value_t tagValue = { .byte_length = sizeof(uint32_t), .tag = tag, .data.value_u32 = value };
-    return mbox_set_tag_value(message, &tagValue, offset);
+    return mbox_set_tag_value(message, offset, &tagValue);
 }

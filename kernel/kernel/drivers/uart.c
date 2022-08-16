@@ -5,11 +5,7 @@
 
 #include <debug.h>
 #include "drivers/mbox.h"
-
-DefineMailboxRequest(
-    set_clock_rate_4mhz,
-    MBOX_TAG_SET_CLOCK_RATE, 3 * sizeof(uint32_t), 2 * sizeof(uint32_t), MBOX_TAG_CLOCK_UART, 4000000, 0
-);
+#include <hermes/system.h>
 
 void uart_init() {
 
@@ -21,8 +17,8 @@ void uart_init() {
     // Thus, we set it to 4Mhz and use that to consistently set the baud
     // rate.
     if (get_mmio_board_type() >= 3) {
-        // A Mailbox message with set clock rate to 4MHz.
-        mbox_call(MBOX_CHANNEL_ARM_TO_VC, mbox_msg_set_clock_rate_4mhz);
+        // Clock the UART at 4Mhz.
+        set_current_clock_speed(MBOX_TAG_CLOCK_UART, 4000000, false);
     }
 
     // Map UART0 to the GPIO pins. (It's normally mapped to the bluetooth adapter).

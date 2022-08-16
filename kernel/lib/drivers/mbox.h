@@ -179,6 +179,18 @@ void mbox_write(uint8_t channel, const volatile uint32_t* message);
 const volatile uint32_t* mbox_read(uint8_t channel, const volatile uint32_t* filter);
 
 /**
+ * Initializes a message request. This includes zeroing out tag values (to be filled) and setting the tag
+ * request/response value to request.
+ *
+ * Returns a boolean to indicate whether the message was successfully initialized. If it wasn't, it is likely due to
+ * an incorrect buffer size or the message not being 16-byte aligned in memory.
+ *
+ * @param message The message to initialize.
+ * @return Whether the message was successfully initialized.
+ */
+bool mbox_init(volatile uint32_t* message);
+
+/**
  * Makes a call to a mailbox. (Writes a message to the mailbox and reads the response).
  * This can be considered a higher level abstraction over mbox_write() and mbox_read(), specifically for mailbox calls
  * where a response is expected but doesn't necessarily need to be read.
@@ -205,11 +217,11 @@ bool mbox_get_tag_value(volatile uint32_t* message, mbox_tag_t tag, mbox_tag_val
  * being set, otherwise the function will fail.
  *
  * @param message The message to write the tag value into.
- * @param value The value (which contains the tag for which it belongs) to write into the message.
  * @param offset The offset (from the first value) to start writing the value data buffer at.
+ * @param value The value (which contains the tag for which it belongs) to write into the message.
  * @return True if successful, otherwise false.
  */
-bool mbox_set_tag_value(volatile uint32_t* message, mbox_tag_value_t* value, uint32_t offset);
+bool mbox_set_tag_value(volatile uint32_t* message, uint32_t offset, mbox_tag_value_t* value);
 
 uint8_t mbox_get_tag_value_u8(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset);
 
