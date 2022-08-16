@@ -15,73 +15,20 @@
 /// Flag that denotes a full mailbox.
 #define MBOX_FULL       0x80000000
 
-
 /// Mask for the Mailbox message data.
 #define MBOX_DATA       0xFFFFFFF0
 /// Mask for Mailbox message channel.
 #define MBOX_CHANNEL    0xF
 
-/// Channel for requests from the ARM CPU to VideoCore.
-#define MBOX_CHANNEL_ARM_TO_VC      0x8
+typedef enum {
+    /// Channel for requests from the ARM CPU to VideoCore.
+    MBOX_CHANNEL_ARM_TO_VC          = 0x8,
+} mbox_channel_t;
 
-
-// TODO: use typedef struct for mailbox messages?
-
-/**
- * Macro to define a mailbox message of the required type and define the parameters inline.
- * @param name The object name the message should be created with.
- */
-#define DefineMailboxMessage(name, ...) volatile uint32_t __attribute__((aligned(16))) (mbox_msg_ ## name)[36] = {__VA_ARGS__}
-
-/**
- * Readability alias to wait while the mailbox status matches the specified status (i.e., wait until that status is no
- * longer set).
- */
-#define mbox_wait_while(status) do {} while (mmio_read(MBOX_STATUS) & status)
-
-/**
- * Readability alias to wait until the mailbox status matches the specified status.
- */
-#define mbox_wait_until(status) do {} while (!(mmio_read(MBOX_STATUS) & status))
-
-/**
- * Send the specified message pointer to the specified mailbox channel when the mailbox becomes available.
- * You can use the DefineMailboxMessage macro to make a buffer and pre-populate it with a specific message payload.
- *
- * If the message pointer is not 16-byte aligned, this function does nothing.
- *
- * @param channel The channel to make the call to.
- * @param message The pointer to the message to write to the mailbox. Must be 16-byte aligned.
- */
-void mbox_write(uint8_t channel, const volatile uint32_t* message);
-
-/**
- * Waits for the specified mailbox channel to have a message written to it and returns a pointer to the message. If
- * this message is a response to an mbox_write() then the returned pointer will be the same address as the message
- * parameter that was used with the corresponding mbox_write() call.
- *
- * If the filter is specified, this function will only return when the response address matches the filter.
- * The filter must be 16-byte aligned.
- *
- * If the mailbox could not be read from, or the filter is not 16-byte aligned, this function will return a null
- * pointer to indicate failure.
- *
- * @param channel The channel to retrieve data from.
- * @param filter Read only a mailbox response to this address.
- * @return A pointer to the mailbox data.
- */
-const volatile uint32_t* mbox_read(uint8_t channel, const volatile uint32_t* filter);
-
-/**
- * Makes a call to a mailbox. (Writes a message to the mailbox and reads the response).
- * This can be considered a higher level abstraction over mbox_write() and mbox_read(), specifically for mailbox calls
- * where a response is expected but doesn't necessarily need to be read.
- *
- * @param channel The channel to make the call to.
- * @param message The message to invoke the call with.
- * @return True on success, otherwise false.
- */
-bool mbox_call(uint8_t channel, volatile uint32_t* message);
+typedef enum {
+    MBOX_TAG_STATE_REQUEST          = 0x0,
+    MBOX_TAG_STATE_RESPONSE         = 0x1,
+} mbox_tag_state_t;
 
 typedef enum {
     /// Tag for end of message.
@@ -161,3 +108,97 @@ typedef enum {
     MBOX_TAG_CLOCK_PIXEL            = 0x9,
     MBOX_TAG_CLOCK_PWM              = 0xA
 } mbox_tag_clock_t;
+
+typedef struct {
+    mbox_tag_t tag;
+    uint32_t byte_length;
+    union {
+        uint8_t value_u8;
+        uint32_t value_u32;
+        uint8_t buffer_u8[256];
+        uint32_t buffer_u32[64];
+    } data;
+} mbox_tag_value_t;
+
+
+// TODO: use typedef struct for mailbox messages?
+
+#define __VA_ARGC__(...)  (sizeof((uint8_t[]){__VA_ARGS__})) // NOLINT(bugprone-reserved-identifier)
+
+/**
+ * Macro to define a mailbox message of the required type and define the parameters inline.
+ * @param name The object name the message should be created with.
+ */
+#define DefineMailboxMessage(name, ...) volatile uint32_t __attribute__((aligned(16))) \
+                                        (mbox_msg_ ## name)[(__VA_ARGC__(__VA_ARGS__))] = {__VA_ARGS__}
+
+#define DefineMailboxRequest(name, ...) volatile uint32_t __attribute__((aligned(16))) \
+                                        (mbox_msg_ ## name)[__VA_ARGC__(__VA_ARGS__) + 3] = {   \
+                                        ((__VA_ARGC__(__VA_ARGS__) + 3) * sizeof(uint32_t)),    \
+                                        MBOX_REQUEST,                                           \
+                                        __VA_ARGS__,                                            \
+                                        MBOX_TAG_END}
+
+/**
+ * Readability alias to wait while the mailbox status matches the specified status (i.e., wait until that status is no
+ * longer set).
+ */
+#define mbox_wait_while(status)     do {} while (mmio_read(MBOX_STATUS) & status)
+
+/**
+ * Readability alias to wait until the mailbox status matches the specified status.
+ */
+#define mbox_wait_until(status)     do {} while (!(mmio_read(MBOX_STATUS) & status))
+
+/**
+ * Send the specified message pointer to the specified mailbox channel when the mailbox becomes available.
+ * You can use the DefineMailboxMessage macro to make a buffer and pre-populate it with a specific message payload.
+ *
+ * If the message pointer is not 16-byte aligned, this function does nothing.
+ *
+ * @param channel The channel to make the call to.
+ * @param message The pointer to the message to write to the mailbox. Must be 16-byte aligned.
+ */
+void mbox_write(uint8_t channel, const volatile uint32_t* message);
+
+/**
+ * Waits for the specified mailbox channel to have a message written to it and returns a pointer to the message. If
+ * this message is a response to an mbox_write() then the returned pointer will be the same address as the message
+ * parameter that was used with the corresponding mbox_write() call.
+ *
+ * If the filter is specified, this function will only return when the response address matches the filter.
+ * The filter must be 16-byte aligned.
+ *
+ * If the mailbox could not be read from, or the filter is not 16-byte aligned, this function will return a null
+ * pointer to indicate failure.
+ *
+ * @param channel The channel to retrieve data from.
+ * @param filter Read only a mailbox response to this address.
+ * @return A pointer to the mailbox data.
+ */
+const volatile uint32_t* mbox_read(uint8_t channel, const volatile uint32_t* filter);
+
+/**
+ * Makes a call to a mailbox. (Writes a message to the mailbox and reads the response).
+ * This can be considered a higher level abstraction over mbox_write() and mbox_read(), specifically for mailbox calls
+ * where a response is expected but doesn't necessarily need to be read.
+ *
+ * @param channel The channel to make the call to.
+ * @param message The message to invoke the call with.
+ * @return True on success, otherwise false.
+ */
+bool mbox_call(uint8_t channel, volatile uint32_t* message);
+
+/**
+ * Gets the tag value from the specified mailbox message.
+ *
+ * @param message The message to get the tag value from.
+ * @param tag The tag to get the value of.
+ * @param value A pointer to the structure to store the value in.
+ * @return True if successful, otherwise false.
+ */
+bool mbox_get_tag_value(volatile uint32_t* message, mbox_tag_t tag, mbox_tag_value_t* value);
+
+uint8_t mbox_get_tag_value_u8(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset);
+
+uint32_t mbox_get_tag_value_u32(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset);

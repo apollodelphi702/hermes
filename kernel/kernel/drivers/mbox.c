@@ -1,5 +1,6 @@
 #include <drivers/mbox.h>
-#include "drivers/uart.h"
+#include <hermes/memory.h>
+#include "hermes/utilities.h"
 
 #define ptr_to_uint32(x) ((uint32_t) (uint64_t) x)
 
@@ -64,4 +65,49 @@ bool mbox_call(uint8_t channel, volatile uint32_t* message) {
 
     // Return whether the call was successful.
     return message[1] == MBOX_RESPONSE;
+}
+
+bool mbox_get_tag_value(volatile uint32_t* message, mbox_tag_t tag, mbox_tag_value_t* value) {
+    // Ensure the message is 16-byte aligned. Otherwise, return early with an error.
+    // We do this manually here as mbox_write currently just exits silently.
+    if ((ptr_to_uint32(message) & MBOX_DATA) != ptr_to_uint32(message)) return false;
+
+    // Ensure tag is not an invalid value.
+    if (tag == MBOX_TAG_END) return false;
+
+    uint32_t index = 2; // Skip over buffer length and message request/response state.
+    while (index < message[0]) { // Loop until the message is read entirely (or until the tag is found).
+
+        if (message[index] == tag) {
+            // Tag was found, copy data and return.
+
+            value->tag          = tag;                              // Tag
+            value->byte_length  = message[index + 2] & 0x3fffffff;  // Response Tag Size (bytes)
+            memcpy(value->data.buffer_u8, (void*) &message[index + 3], value->byte_length);
+
+            return true;
+        }
+
+        // Otherwise skip to the next tag.
+        index += (
+            message[index + 1]  /* Value after tag name is tag size (bytes) */
+            >> 2                /* Divide by 4 (we're iterating over uint32 = 4 bytes) */
+        ) + 3;                  /* Add 3 (current tag, tag size and tag status) */
+
+    }
+
+    // If the tag wasn't found, return false.
+    return false;
+}
+
+uint8_t mbox_get_tag_value_u8(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset) {
+    mbox_tag_value_t value;
+    mbox_get_tag_value(message, tag, &value);
+    return value.data.buffer_u8[offset];
+}
+
+uint32_t mbox_get_tag_value_u32(volatile uint32_t* message, mbox_tag_t tag, uint32_t offset) {
+    mbox_tag_value_t value;
+    mbox_get_tag_value(message, tag, &value);
+    return value.data.buffer_u32[offset];
 }

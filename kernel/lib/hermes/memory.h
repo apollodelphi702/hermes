@@ -18,11 +18,33 @@ void memset(void* base, unsigned char value, size_t size);
 void memswap(char* a, char* b);
 
 /**
- * Zeroes out a memory buffer, starting from base to base + size.
- * Enables compiler/CPU optimization by clearing in full system words (64-bit) instead
- * of byte-by-byte.
+ * Alias to memset for readability that sets the value to '\0'.
  *
  * @param base The base address to start clearing from.
  * @param size The size of the buffer to clear.
  */
 void memzero(void* base, size_t size);
+
+/**
+ * Copies a buffer of the specified size (length in bytes) from source to destination.
+ * If destination and source overlap, the behavior is undefined.
+ * Applications in which destination and source overlap should use memmove instead.
+ *
+ * @param destination The destination pointer, to copy to.
+ * @param source The source pointer, to copy from.
+ * @param size The number of bytes to copy.
+ * @return The pointer to the destination.
+ */
+void* memcpy(void* restrict destination, const void* restrict source, size_t size);
+
+/**
+ * Copies a buffer of the specified size (length in bytes) from source to destination.
+ * memmove does this in a non-destructive way. The buffers may overlap.
+ * If the buffers do not overlap, memcpy should be used for better performance.
+ *
+ * @param destination The destination pointer, to copy to.
+ * @param source The source pointer, to copy from.
+ * @param size The number of bytes to copy.
+ * @return The pointer to the destination.
+ */
+void* memmove(void* destination, const void* source, size_t size);
