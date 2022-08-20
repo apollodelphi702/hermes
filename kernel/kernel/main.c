@@ -2,6 +2,7 @@
 
 #include <drivers/mmio.h>
 #include <drivers/uart.h>
+#include <drivers/graphics.h>
 
 #include <console.h>
 #include <hermes.h>
@@ -22,6 +23,27 @@ void kernel_main(__attribute__((unused)) uint64_t deviceTree,
     uart_init();
     uart_clear();
     uart_puts("Welcome to Hermes v0.0.1!\r\n");
+
+    /* Initialize Graphics */
+    graphics_init_t graphicsInit = {
+            .width = 1280,
+            .height = 1024,
+            .virtual_width = 1280,
+            .virtual_height = 2048,
+            .depth = 32
+    };
+    graphics_init(&graphicsInit);
+
+    void* framebuffer = graphics_get_framebuffer();
+    uint32_t framebufferSize = graphics_get_framebuffer_size();
+
+    uint8_t value = 0;
+    for (uint32_t i = 0; i < framebufferSize; i++) {
+        *((uint8_t*)framebuffer + i) = value++;
+    }
+
+
+    /* Start Console */
 
     // Print system information
     uart_puts("Raspberry Pi Board Version: ");
